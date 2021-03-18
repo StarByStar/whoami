@@ -1,0 +1,18 @@
+{% extends 'game\base.html' %}	
+{% block content %}
+<div class="description">
+	<h2 class="headings">Game Settings</h2>
+	<form method="POST" action="/new_game/lobby/">
+		{% csrf_token %}
+		<input type="text" required name="game_name" placeholder="Game name">
+		<br>
+		<br>
+		<input type="password" required name="game_password" placeholder="Game password">
+		<br>
+		<br>
+		<input type="submit" value="Create">
+	</form>
+
+</div>
+
+{% endblock %}

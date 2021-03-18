@@ -1,0 +1,8 @@
+{% extends 'game\base.html' %}	
+{% block content %}
+{% csrf_token %}
+<div class="description">
+	<h2 class="headings">{{ game_name }}</h2>
+</div>
+
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'game\base.html' %}	
+{% block content %}
+<div class="description">
+	<h2 class="headings">Find_game</h2>
+	<form method="POST" action="/new_game/join_lobby/">
+		{% csrf_token %}
+			{{ games | safe }}
+			<input type="submit" value="Join">
+	</form>
+</div>
+
+{% endblock %}
