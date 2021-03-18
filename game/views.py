@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from game.models import Game, Player
 from datetime import datetime, timedelta
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+
 
 # static main page
 def main(request):
@@ -73,10 +75,13 @@ def lobby(request, pk):
 	current_user = request.user
 	user_id = current_user.id
 	context['game_name'] = current_game.name
-	if Player.objects.get(game_id=pk, userid=user_id) is None:
+	try:
+		god_gamer = Player.objects.get(game_id=pk, userid=user_id)
+	except ObjectDoesNotExist:
 		return redirect('/find_game/')
 	else:
 		return render(request, 'game/lobby.html', context)
+
 
 # Get all available games
 def get_available_games():
@@ -105,10 +110,13 @@ def join_lobby(request):
     	current_user = request.user
     	user_id = current_user.id
     	if check_passwd(game_id, password):
-    		if Player.objects.get(game_id=game_id, userid=user_id) is None:
+    		try:
+    			god_gamer = Player.objects.get(game_id=game_id, userid=user_id)
+    		except ObjectDoesNotExist: 
 	    		add_player(game_id, user_id)
-	    		return render('player joined') # to lobby and create
-	    	return HttpResponse('Error. Player already joined') # to lobby
+	    		return HttpResponse('success') # to lobby and create
+	    	else:
+	    		return HttpResponse('Error. Player already joined') # to lobby
     	return HttpResponse('wrong password') # to error
 
 
