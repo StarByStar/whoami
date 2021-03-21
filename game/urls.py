@@ -12,6 +12,6 @@ urlpatterns = [
     path('lobby/<int:pk>/', views.lobby),
     path('new_game/lobby/', views.create_lobby),
     path('new_game/join_lobby/', views.join_lobby),
-    #url(r'^lobby/$', views.lobby , name='lobby'),
-    #path('new_game/<int:pk>/', views.create_lobby),
+    path('start_game/', views.start_game),
+    path('set_character/', views.set_character),
 ]

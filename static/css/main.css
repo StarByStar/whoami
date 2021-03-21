@@ -61,9 +61,23 @@ body {
 	background-color:transparent;
 }
 
+
 .description {
 	width: 640px;
 	height: 480px;
 	color: #ffff1a;
 	background-color: black;
+}
+
+
+.game_table {
+	table-layout: fixed;
+	width: 100%;
+	border-collapse: collapse;
+	border: 3px solid green;
+	font-size: 32px;
+}
+
+th, td {
+	padding: 20px;
 }

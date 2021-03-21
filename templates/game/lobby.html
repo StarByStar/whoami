@@ -1,8 +1,38 @@
 {% extends 'game\base.html' %}	
+
+
 {% block content %}
 {% csrf_token %}
 <div class="description">
 	<h2 class="headings">{{ game_name }}</h2>
+
+	{% if need_to_assign %}
+		<form method="POST" action="/set_character/">
+		{% csrf_token %}
+		{{ players | safe }}
+		<input type="submit" value="Set character">
+		</form>
+	{% else %}
+		{{ players | safe }}
+	{% endif %}
+
+	{% if creator and state == 'lobby' %}
+		<form method="POST" action="/start_game/">
+			{% csrf_token %}
+			<input type="hidden" required name="game_id" value="{{ game_id }}">
+			<input type="submit" value="Start game">
+		</form>
+	{% endif %}
+
+	{% if creator and state == 'active' %}
+		<form method="POST" action="/start_game/">
+			{% csrf_token %}
+			<input type="hidden" required name="game_id" value="{{ game_id }}">
+			<br><br>
+			<input type="submit" value="Close game">
+		</form>
+	{% endif %}
+
 </div>
 
 {% endblock %}
