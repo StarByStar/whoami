@@ -6,6 +6,7 @@ from game.models import Game, Player
 from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.datastructures import MultiValueDictKeyError
 
 
 # static main page
@@ -28,7 +29,6 @@ def new_game(request):
 
 @login_required(login_url='/login')
 def find_game(request):
-	#return HttpResponse(get_available_games())
 	all_games = '<p> Choose your game: </p>'
 	available_games = get_available_games()
 	for game in available_games:
@@ -130,12 +130,6 @@ def players_for_lobby(game, request):
 	gamers += '</table>'
 	return gamers	
 
-# def char_form():
-#  form = f'<form method="POST" action="/start_game/"> '
-# 		f'{% csrf_token %} '
-# 		f'<input type="text" required name="player_character"> '
-# 		f' <input type="submit" value="set character"> '
-# 		f'</form>'
 
 @login_required
 def set_character(request):
@@ -145,11 +139,12 @@ def set_character(request):
 		character = request.POST['character']
 		user = User.objects.get(username=whom)
 		player_obj = Player.objects.get(game_id=game_id, userid=user.id)
-		if str(player_obj.whoassign) == str(request.user.username):
-			player_obj.character = character
-			player_obj.save()
-
-
+		if player_obj.character is None:
+			if str(player_obj.whoassign) == str(request.user.username):
+				player_obj.character = character
+				player_obj.save()
+		else:
+			return HttpResponse('Error: player already set')
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
@@ -178,21 +173,25 @@ def add_player(game_id, userid):
 # add player to existing game
 def join_lobby(request):
     if request.method == 'POST':
-    	game_id = request.POST['chosen_game']
-    	password = request.POST['password']
-    	current_user = request.user
-    	user_id = current_user.id
-    	if check_passwd(game_id, password):
-    		try: # player already exist?
-    			god_gamer = Player.objects.get(game_id=game_id, userid=user_id)
-    		except ObjectDoesNotExist: # no
-	    		add_player(game_id, user_id)
-	    		lobby_url = '/lobby/' + str(game_id) + '/'
-	    		return redirect(lobby_url) # to lobby
-	    	else: # yes
-	    		lobby_url = '/lobby/' + str(game_id) + '/'
-	    		return redirect(lobby_url) # to lobby
-    	return HttpResponse('wrong password') # to error
+    	try:
+    		game_id = request.POST['chosen_game']
+    	except MultiValueDictKeyError:
+    		return HttpResponse('¯\_(ツ)_/¯ <br> u need to choose a game <br> or create one')
+    	else:
+	    	password = request.POST['password']
+	    	current_user = request.user
+	    	user_id = current_user.id
+	    	if check_passwd(game_id, password):
+	    		try: # player already exist?
+	    			god_gamer = Player.objects.get(game_id=game_id, userid=user_id)
+	    		except ObjectDoesNotExist: # no
+		    		add_player(game_id, user_id)
+		    		lobby_url = '/lobby/' + str(game_id) + '/'
+		    		return redirect(lobby_url) # to lobby
+		    	else: # yes
+		    		lobby_url = '/lobby/' + str(game_id) + '/'
+		    		return redirect(lobby_url) # to lobby
+	    	return HttpResponse('wrong password') # to error
 
 
 # validate game password
@@ -216,7 +215,6 @@ def start_game(request):
 	if request.method == 'POST':
 		game_id = request.POST['game_id']
 		current_game = Game.objects.get(pk=game_id)
-		#if  current_game.game_state == 'lobby':
 		if str(request.user.username) == str(current_game.creator_id) and current_game.game_state == 'lobby':
 			current_game.game_state = 'active'
 			current_game.assign()

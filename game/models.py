@@ -30,16 +30,17 @@ class Game(models.Model):
 		#create player list
 		for player in players:
 			players_list.append(player.userid)
-		# odd players
+		# even players
 		if len(players_list) % 2 == 0:
 			players_list.reverse()
 			for player in players:
 				player.whoassign = User.objects.get(username=players_list[i])
 				player.save()
 				i += 1
-		else: # even players
-			players_list.append(players_list[len(players_list)-1])
-			players_list.reverse()
+		else: # odd players
+			first_player = players_list.pop(0)
+			# move first player to last place
+			players_list.append(first_player)
 			for player in players:
 				player.whoassign = User.objects.get(username=players_list[i])
 				player.save()
